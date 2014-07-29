@@ -24,7 +24,7 @@ module.exports = function(grunt) {
 				'-tomcatPath',
 				'/home/impadmin/Softwares/apache-tomcat-7.0.26/apache-tomcat-7.0.26',
 				'-outputPath',
-				'/home/impadmin/KunderaWork/Final-js/testGrunt/data' ]
+				'/home/impadmin/KunderaWork/Final-js/testGrunt/data','-jsPath','../../js/' ]
 	// Additional options for the Node.js child_process spawn method.
 	//opts: nodeSpawnOptions,
 	// If this value is set and an error occurs, it will be used as the value

@@ -12,7 +12,8 @@
   ],
   "dependencies": {
     "kunderaJSRest": "https://github.com/chhavigangwal/KunderaJSRest.git",
-    "ServersideObjectGeneration": "https://github.com/chhavigangwal/ServerSideObjectGen.git"
+    "ServersideObjectGeneration": "https://github.com/chhavigangwal/ServerSideObjectGen.git",
+    "grunt": "0.4.5"
      
     
   },
