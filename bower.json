@@ -1,0 +1,26 @@
+{
+  "name": "kundera",
+  "main": "kundera.js",
+  "version": "1.0.0",
+  "authors": [
+    "chhaviganwgal <chhavi.ganwgal@impetus.co.in>"
+  ],
+ 
+  "description": "Kundera's js component",
+  "keywords": [
+    "kundera"
+  ],
+  "dependencies": {
+    "kunderaJSRest": "https://github.com/chhavigangwal/KunderaJSRest.git",
+    "ServersideObjectGeneration": "https://github.com/chhavigangwal/ServerSideObjectGen.git"
+     
+    
+  },
+
+  "license": "MIT",
+  "homepage": "https://github.com/impetus-opensource/Kundera/",
+  "private": true,
+  "ignore": [
+    "**/.*"
+    ]
+}

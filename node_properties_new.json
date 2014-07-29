@@ -1,0 +1,10 @@
+{
+	"DATA_STORE":"cassandra",
+	"HOST":"localhost",
+	"PORT":"9160",
+	"database":"sampletest",	
+	"packageName":"node",	
+	"entities": [{"table" : "PERSONNEL", "className" : "PersonnelUni1ToM", "isRelationship" : "true", "relationshipType" : "OneToMany", "attributeName" : "PERSON_ID", "relationshipTable" : "ADDRESS",
+				 "relationshipClass" : "HabitatUni1ToM" , "relationshipDATA_STORE" : "mongodb" , "relationshipHost" : "localhost", "relationshipPort" : "27017" }],	
+	"OUTPUT_PACKAGE": "/home/impadmin/KunderaWork/Final-js/testGrunt/data/"
+}
