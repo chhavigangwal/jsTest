@@ -1444,8 +1444,8 @@ function $doSend(this$static, requestData, callback){
   var baseUrl, requestUrl, s, i;
   baseUrl = (s = $doc.location.href , i = s.indexOf('#') , i != -1 && (s = s.substring(0, i)) , i = s.indexOf('?') , i != -1 && (s = s.substring(0, i)) , i = s.lastIndexOf('/') , i != -1 && (s = s.substring(0, i)) , s.length > 0?s + '/':'');
   requestUrl = this$static.url;
-  if(getKunderaRestUrl() != null && requestUrl.indexOf(baseUrl) == 0){
-	  var restUrl = getKunderaRestUrl() +'/'+ requestUrl.substring(baseUrl.length,requestUrl.length);
+  if(getKunderaRestUrl() != null){
+	  var restUrl = getKunderaRestUrl() +'/'+ requestUrl.substring(requestUrl.indexOf("rest/kundera"),requestUrl.length);
 	  this$static.url = restUrl;
   }
   try {
