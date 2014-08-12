@@ -101,8 +101,7 @@ module.exports = function(grunt) {
 						grunt.util.spawn(grunt.config.get([ 'installRest' ]).options,
 								function(err, result, code){
 											if (code == 127) {
-												return grunt
-														.warn('The attempt to install rest for kundera failed. ');
+												return grunt.warn('The attempt to install rest for kundera failed. ');
 											}
 											grunt.log.write('Response...' + result).ok();
 											grunt.task.run('deployRest');
@@ -111,14 +110,14 @@ module.exports = function(grunt) {
 
 					});
 
-	grunt.registerTask('deployRest','Log some stuff.',function() {
+	grunt.     registerTask('deployRest','Log some stuff.',function() {
 						var done = this.async();
 						grunt.log.write('Deploying rest dependency...').ok();
 						grunt.util.spawn(grunt.config.get([ 'deployRest' ]).options,
 								function(err, result, code){
 											if (code == 127) {
 												return grunt
-														.warn('The attempt to install rest for kundera failed. ');
+														.warn('The attempt to deploy rest for kundera failed. ');
 											}
 											grunt.log.write('Response...' + result).ok();
 											done();
@@ -132,7 +131,7 @@ module.exports = function(grunt) {
 	    grunt.util.spawn(grunt.config.get(['installServerSide']).options,
 				function(err, result, code){
 							if (code == 127) {
-								return grunt.warn('The attempt to install model generator for kundera failed. ');
+								return grunt.warn('The attempt to install server side object model generator for kundera failed. ');
 							}
 							grunt.log.write('Response...' + result).ok();
 							grunt.task.run('deployServerSideObject');
@@ -148,7 +147,7 @@ module.exports = function(grunt) {
 						grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).options,
 										function(err, result, code){
 											if (code == 127) {
-												return grunt.warn('The attempt to install rest for kundera failed. ');
+												return grunt.warn('The attempt to deploy server side object model generator for kundera failed. ');
 											}
 											grunt.log.write('Response...' + result).ok();
 											grunt.task.run('createServerSideObject');
@@ -164,13 +163,14 @@ module.exports = function(grunt) {
 	grunt.registerTask('createServerSideObject','Log some stuff.',function() {
 		var done = this.async();
 		grunt.log.write('Creating Server side objects...').ok();
-		console.log(grunt.config.get([ 'deployServerSideObject' ]).create_jar_options);
+		
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).create_jar_options,
 						function(err, result, code){
 							if (code == 127) {
-								return grunt.warn('The attempt to install rest for kundera failed. ');
+								return grunt.warn('The attempt to create server side objects for kundera failed. ');
 							}
 							grunt.log.write('Response...' + result).ok();
+							done();
 
 						});
 
@@ -182,10 +182,10 @@ module.exports = function(grunt) {
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_pu_options,
 						function(err, result, code){
 							if (code == 127) {
-								return grunt.warn('The attempt to install rest for kundera failed. ');
+								return grunt.warn('The attempt to deploy persistence unit for kundera failed. ');
 							}
 							grunt.log.write('Response...' + result).ok();
-
+							done();
 						});
 
 	});
@@ -196,10 +196,10 @@ module.exports = function(grunt) {
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_cass_options,
 						function(err, result, code){
 							if (code == 127) {
-								return grunt.warn('The attempt to install rest for kundera failed. ');
+								return grunt.warn('The attempt to deploy cassandra entities for kundera failed. ');
 							}
 							grunt.log.write('Response...' + result).ok();
-
+							done();
 						});
 
 	});
@@ -210,10 +210,10 @@ module.exports = function(grunt) {
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_mongo_options,
 						function(err, result, code){
 							if (code == 127) {
-								return grunt.warn('The attempt to install rest for kundera failed. ');
+								return grunt.warn('The attempt to deploy mongo entities for kundera failed.');
 							}
 							grunt.log.write('Response...' + result).ok();
-
+							done();
 						});
 
 	});
