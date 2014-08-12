@@ -1,8 +1,5 @@
 function kunderajs(){
   var $wnd_0 = window, $doc_0 = document, gwtOnLoad, bodyDone, base = '', metaProps = {}, values = [], providers = [], answers = [], softPermutationId = 0, onLoadErrorFunc, propertyErrorFunc;
-  if (!$wnd_0.__gwt_stylesLoaded) {
-    $wnd_0.__gwt_stylesLoaded = {};
-  }
   if (!$wnd_0.__gwt_scriptsLoaded) {
     $wnd_0.__gwt_scriptsLoaded = {};
   }
@@ -4250,7 +4247,12 @@ function $onModuleLoad_1(){
 
 function callback_0(func, response){
   $clinit_KunderaJS();
-  func != null && func != '' && func != undefined && func != 'undefined' && $wnd[func](response);
+  if (func != null && func != '' && func != undefined && func != 'undefined' && (typeof func == "function")) {
+	  func.call(this, response);
+   } else {
+      func != null && func != '' && func != undefined && func != 'undefined' && $wnd[func](response);
+   }
+ 
 }
 
 function closeEntityManager(){

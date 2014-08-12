@@ -1,88 +1,221 @@
-//var pkgjson = require('./package.json');
-
-/*var config = {
- pkg: pkgjson,
- app: 'bower_components',
- dist: 'dist'
- }*/
+var M2_COMMAND = process.env.M2_HOME + "/bin/mvn";
+var JAVA_HOME = process.env.JAVA_HOME;
+var TOMCAT_PATH = "/home/impadmin/Softwares/apache-tomcat-7.0.26/apache-tomcat-7.0.26";
+var SERVER_SIDE_DATA_CONFIG = "/home/impadmin/KunderaWork/Final-js/testGrunt/node_properties_new.json";
+var OUTPUT_PATH = "/home/impadmin/testnode";
+var JS_DEPLOY_PATH = "/home/impadmin/testnode";
 
 module.exports = function(grunt) {
-	var options = {
-		// The command to execute. It should be in the system path.
-		// cmd: 'mvn',
-		cmd : 'sh',
-		// If specified, the same grunt bin that is currently running will be
-		// spawned as the child command, instead of the "cmd" option. Defaults
-		// to false.
-		grunt : false,
-		// An array of arguments to pass to the command.
-		//args: ['-f','/home/impadmin/KunderaWork/KunderaJSRest/pom.xml','clean','install','-U'],
-		args : [
-				'kundera.sh',
-				'-file',
-				'/home/impadmin/KunderaWork/Final-js/testGrunt/node_properties_new.json',
-				'-tomcatPath',
-				'/home/impadmin/Softwares/apache-tomcat-7.0.26/apache-tomcat-7.0.26',
-				'-outputPath',
-				'/tmp/data','-jsPath','../../js/' ]
-	// Additional options for the Node.js child_process spawn method.
-	//opts: nodeSpawnOptions,
-	// If this value is set and an error occurs, it will be used as the value
-	// and null will be passed as the error value.
-	//fallback: fallbackValue
-	};
+	grunt.initConfig({
+		pkg : grunt.file.readJSON('package.json'),
 
-	function doneFunction(error, result, code) {
+		// Mocha
+		mocha : {
+			all : {
+				src : [ 'tests/testrunner.html' ],
+			},
+			options : {
+				run : true,
+				debug : true
+			}
+		},
+		// Install Rest for Kundera
+		installRest : {
+			options : {
+				cmd : M2_COMMAND,
+				grunt : false,
+				args : [ '-f', 'bower_components/kunderaJSRest/pom.xml',
+						'clean', 'install', '-U' ]
+			}
+		},
+		//Server side object model generation
+		installServerSide : {
+			options : {
+				cmd : M2_COMMAND,
+				grunt : false,
+				args : [ '-f',
+						'bower_components/ServersideObjectGeneration/pom.xml',
+						'clean', 'compile', 'assembly:single', '-U' ]
 
-		if (code == 127) {
-			return grunt.warn('The attempt to do whatever failed. ');
+			}
+		},
+		//Deploying rest package
+		deployRest : {
+			options : {
+				cmd : 'cp',
+				grunt : false,
+				args : [ '-R',
+						'bower_components/kunderaJSRest/target/KunderaJSRest/',
+						TOMCAT_PATH+'/webapps/' ]
+
+			}
+		},
+		//Deploying server side object model
+		deployServerSideObject : {
+			options : {
+				cmd : 'cp',
+				grunt : false,
+				args : [ 'bower_components/ServersideObjectGeneration/target/ServerSideObjectGen-0.0.1-jar-with-dependencies.jar',
+						 'bower_components/ServersideObjectGeneration' ]
+
+			},
+			create_jar_options : {
+				cmd : JAVA_HOME + "/bin/java",
+				grunt : false,
+				args : [ '-jar','bower_components/ServersideObjectGeneration/ServerSideObjectGen-0.0.1-jar-with-dependencies.jar',
+				         SERVER_SIDE_DATA_CONFIG,OUTPUT_PATH]
+
+			},
+			deploy_pu_options : {
+				cmd : 'cp',
+				grunt : false,
+				args : [ '-r', OUTPUT_PATH+'/META-INF', TOMCAT_PATH+'/webapps/KunderaJSRest/WEB-INF/classes/']
+
+			},
+			deploy_cass_options : {
+				cmd : 'cp',
+				grunt : false,
+				args : [ OUTPUT_PATH+'/dynamic-cassandra-entity.jar', TOMCAT_PATH + '/webapps/KunderaJSRest/WEB-INF/lib']
+
+			},
+			deploy_mongo_options : {
+				cmd : 'cp',
+				grunt : false,
+				args : [ OUTPUT_PATH+'/dynamic-mongodb-entity.jar', TOMCAT_PATH + '/webapps/KunderaJSRest/WEB-INF/lib']
+
+			}
+		
 		}
-		done(error);
-		// If the exit code was non-zero and a fallback wasn't specified, an Error
-		// object, otherwise null.
-		//error : {grunt.log.write('Logging some stuff...').ok();}
-		// The result object is an object with the properties .stdout, .stderr, and
-		// .code (exit code).
-		//result: {grunt.log.write('Logging some stuff...').ok();}
-		// When result is coerced to a string, the value is stdout if the exit code
-		// was zero, the fallback if the exit code was non-zero and a fallback was
-		// specified, or stderr if the exit code was non-zero and a fallback was
-		// not specified.
-		//String(result) 
-		// The numeric exit code.
-		//	  /code
-	}
-	// A very basic default task.
-	grunt.registerTask('default', 'Log some stuff.', function() {
+	});
+
+	// Load grunt mocha task
+	grunt.loadNpmTasks('grunt-mocha');
+	
+	grunt.registerTask('test', [ 'mocha' ]);
+	
+	grunt.registerTask('default', [ 'installRest','installServerSide']);
+
+	grunt.registerTask('installRest','Log some stuff.',	function() {
+						var done = this.async();
+						grunt.log.write('Installing rest dependency...').ok();
+						grunt.util.spawn(grunt.config.get([ 'installRest' ]).options,
+								function(err, result, code){
+											if (code == 127) {
+												return grunt
+														.warn('The attempt to install rest for kundera failed. ');
+											}
+											grunt.log.write('Response...' + result).ok();
+											grunt.task.run('deployRest');
+								            done();
+										});
+
+					});
+
+	grunt.registerTask('deployRest','Log some stuff.',function() {
+						var done = this.async();
+						grunt.log.write('Deploying rest dependency...').ok();
+						grunt.util.spawn(grunt.config.get([ 'deployRest' ]).options,
+								function(err, result, code){
+											if (code == 127) {
+												return grunt
+														.warn('The attempt to install rest for kundera failed. ');
+											}
+											grunt.log.write('Response...' + result).ok();
+											done();
+
+										});
+
+					});
+	grunt.registerTask('installServerSide','Log some stuff.', function() {
 		var done = this.async();
-		grunt.log.write('Installing kundera.js...').ok();
-		grunt.util.spawn(options, function(response) {
-			grunt.log.write('Response...' + response).ok();
-			
-			
-		});
+		grunt.log.write('Installing server side object model...').ok();
+	    grunt.util.spawn(grunt.config.get(['installServerSide']).options,
+				function(err, result, code){
+							if (code == 127) {
+								return grunt.warn('The attempt to install model generator for kundera failed. ');
+							}
+							grunt.log.write('Response...' + result).ok();
+							grunt.task.run('deployServerSideObject');
+							done();
+
+						});
 
 	});
-	/*grunt.registerMultiTask('executetagger', 'something er other', function(outDir) {
-	    var done = this.async();
-	    console.log(arguments);
-	    executetagger = grunt.util.spawn({
-	          cmd: "node",
-	          args: ["doe/ray/me",
-	                      "--foo=bar",
-	                      "--baz=qux"]
-	    }, function(error, result, code) {
-	          if(code == 127) {
-	                return grunt.warn(
-	                   'The attempt to do whatever failed. '
-	                );
-	          }
-	          done(error);
-	    });
-	    executetagger.stdout.pipe(process.stdout);
-	    executetagger.stderr.pipe(process.stderr);
+
+	grunt.registerTask('deployServerSideObject','Log some stuff.',function() {
+						var done = this.async();
+						grunt.log.write('deploying Server side...').ok();
+						grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).options,
+										function(err, result, code){
+											if (code == 127) {
+												return grunt.warn('The attempt to install rest for kundera failed. ');
+											}
+											grunt.log.write('Response...' + result).ok();
+											grunt.task.run('createServerSideObject');
+											grunt.task.run('DeployPU');
+											grunt.task.run('DeployCassObjects');
+											grunt.task.run('DeployMongoObjects');
+											done();
+
+										});
+
+					});
+	
+	grunt.registerTask('createServerSideObject','Log some stuff.',function() {
+		var done = this.async();
+		grunt.log.write('Creating Server side objects...').ok();
+		console.log(grunt.config.get([ 'deployServerSideObject' ]).create_jar_options);
+		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).create_jar_options,
+						function(err, result, code){
+							if (code == 127) {
+								return grunt.warn('The attempt to install rest for kundera failed. ');
+							}
+							grunt.log.write('Response...' + result).ok();
+
+						});
+
 	});
-	grunt.registerTask('tagger', 'executetagger');
-	grunt.registerTask('hudson-ci', ['tagger', 'somethingelse', 'athirdthing']);
-	};*/
+	
+	grunt.registerTask('DeployPU','Log some stuff.',function() {
+		var done = this.async();
+		grunt.log.write('deploying persistence unt...').ok();
+		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_pu_options,
+						function(err, result, code){
+							if (code == 127) {
+								return grunt.warn('The attempt to install rest for kundera failed. ');
+							}
+							grunt.log.write('Response...' + result).ok();
+
+						});
+
+	});
+	
+	grunt.registerTask('DeployCassObjects','Log some stuff.',function() {
+		var done = this.async();
+		grunt.log.write('deploying cassandra objects...').ok();
+		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_cass_options,
+						function(err, result, code){
+							if (code == 127) {
+								return grunt.warn('The attempt to install rest for kundera failed. ');
+							}
+							grunt.log.write('Response...' + result).ok();
+
+						});
+
+	});
+	
+	grunt.registerTask('DeployMongoObjects','Log some stuff.',function() {
+		var done = this.async();
+		grunt.log.write('deploying mongo objects...').ok();
+		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_mongo_options,
+						function(err, result, code){
+							if (code == 127) {
+								return grunt.warn('The attempt to install rest for kundera failed. ');
+							}
+							grunt.log.write('Response...' + result).ok();
+
+						});
+
+	});
+	
 };
