@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 				cmd : M2_COMMAND,
 				grunt : false,
 				args : [ '-f', 'bower_components/kunderaJSRest/pom.xml',
-						'clean', 'install', '-U' ]
+						'clean', 'install','-Pconf','-Ddir='+TOMCAT_PATH+'/webapps/' , '-U' ]
 			}
 		},
 		//Server side object model generation
@@ -39,17 +39,7 @@ module.exports = function(grunt) {
 
 			}
 		},
-		//Deploying rest package
-		deployRest : {
-			options : {
-				cmd : 'cp',
-				grunt : false,
-				args : [ '-R',
-						'bower_components/kunderaJSRest/target/KunderaJSRest/',
-						TOMCAT_PATH+'/webapps/' ]
-
-			}
-		},
+		
 		//Deploying server side object model
 		deployServerSideObject : {
 			options : {
@@ -85,6 +75,30 @@ module.exports = function(grunt) {
 
 			}
 		
+		},
+		uglify: {
+			all: {
+				files: {
+					"dist/kundera.min.js": [ "kundera.js" ]
+				},
+				options: {
+//					preserveComments: false,
+//					sourceMap: true,
+//					sourceMapName: "dist/jquery.min.map",
+//					report: "min",
+//					beautify: {
+//						"ascii_only": true
+//					},
+//					banner: "/*! jQuery v<%= pkg.version %> | " +
+//						"(c) 2005, <%= grunt.template.today('yyyy') %> jQuery Foundation, Inc. | " +
+//						"jquery.org/license */",
+					compress: {
+						"hoist_funs": false,
+						loops: false,
+						unused: false
+					}
+				}
+			}
 		}
 	});
 
@@ -93,7 +107,9 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('test', [ 'mocha' ]);
 	
-	grunt.registerTask('default', [ 'installRest','installServerSide']);
+	grunt.loadNpmTasks('grunt-contrib-uglify');
+	
+	grunt.registerTask('default', ['uglify', 'installRest','installServerSide']);
 
 	grunt.registerTask('installRest','Log some stuff.',	function() {
 						var done = this.async();
@@ -104,27 +120,12 @@ module.exports = function(grunt) {
 												return grunt.warn('The attempt to install rest for kundera failed. ');
 											}
 											grunt.log.write('Response...' + result).ok();
-											grunt.task.run('deployRest');
-								            done();
-										});
-
-					});
-
-	grunt.     registerTask('deployRest','Log some stuff.',function() {
-						var done = this.async();
-						grunt.log.write('Deploying rest dependency...').ok();
-						grunt.util.spawn(grunt.config.get([ 'deployRest' ]).options,
-								function(err, result, code){
-											if (code == 127) {
-												return grunt
-														.warn('The attempt to deploy rest for kundera failed. ');
-											}
-											grunt.log.write('Response...' + result).ok();
 											done();
-
 										});
 
 					});
+
+	
 	grunt.registerTask('installServerSide','Log some stuff.', function() {
 		var done = this.async();
 		grunt.log.write('Installing server side object model...').ok();
