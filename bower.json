@@ -13,12 +13,9 @@
   "dependencies": {
     "kunderaJSRest": "https://github.com/chhavigangwal/KunderaJSRest.git",
     "ServersideObjectGeneration": "https://github.com/chhavigangwal/ServerSideObjectGen.git"
-     
-    
   },
-
   "license": "MIT",
-  "homepage": "https://github.com/impetus-opensource/Kundera/",
+  "homepage": "https://github.com/chhavigangwal/kunderajs",
   "private": true,
   "ignore": [
     "**/.*"
