@@ -19,7 +19,7 @@ module.exports = function(grunt) {
 			options : {
 				cmd : "mvn",
 				grunt : false,
-				args : [ '-f', 'bower_components/kunderaJSRest/pom.xml',
+				args : [ '-f', '../kunderaJSRest/pom.xml',
 						'clean', 'install','-Pconf','-Ddir=<%= kconfig.tomcat_path %>/webapps/' , '-U' ]
 			}
 		},
@@ -29,7 +29,7 @@ module.exports = function(grunt) {
 				cmd : "mvn",
 				grunt : false,
 				args : [ '-f',
-						'bower_components/ServersideObjectGeneration/pom.xml',
+						'../ServersideObjectGeneration/pom.xml',
 						'clean', 'compile', 'assembly:single', '-Pconf','-Ddir=../ServersideObjectGeneration/' ,'-U' ]
 
 			}
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
 			create_jar_options : {
 				cmd : "java",
 				grunt : false,
-				args : [ '-jar','bower_components/ServersideObjectGeneration/ServerSideObjectGen-0.0.1-jar-with-dependencies.jar',
+				args : [ '-jar','../ServersideObjectGeneration/ServerSideObjectGen-0.0.1-jar-with-dependencies.jar',
                            '<%= kconfig.object_generator_data_config %>','<%= kconfig.object_output_path %>']
 
 			}
