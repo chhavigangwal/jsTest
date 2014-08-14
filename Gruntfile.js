@@ -11,13 +11,18 @@ module.exports = function(grunt) {
 			},
 			options : {
 				run : true,
-				debug : true
+				debug : true,
+				timeout : 10000,
+				options: {
+				      log: true,
+				      logErrors: true
+				    }
 			}
 		},
 		// Install Rest for Kundera
 		installRest : {
 			options : {
-				cmd : "<%= env.M2_HOME %>/bin/mvn",
+				cmd : "mvn",
 				grunt : false,
 				args : [ '-f', 'bower_components/kunderaJSRest/pom.xml',
 						'clean', 'install','-Pconf','-Ddir=<%= kconfig.tomcat_path %>/webapps/' , '-U' ]
@@ -26,7 +31,7 @@ module.exports = function(grunt) {
 		//Server side object model generation
 		installServerSide : {
 			options : {
-				cmd : "<%= env.M2_HOME %>/bin/mvn",
+				cmd : "mvn",
 				grunt : false,
 				args : [ '-f',
 						'bower_components/ServersideObjectGeneration/pom.xml',
@@ -45,7 +50,7 @@ module.exports = function(grunt) {
 
 			},
 			create_jar_options : {
-				cmd : "<%= env.JAVA_HOME %>/bin/java",
+				cmd : "java",
 				grunt : false,
 				args : [ '-jar','bower_components/ServersideObjectGeneration/ServerSideObjectGen-0.0.1-jar-with-dependencies.jar',
                            '<%= kconfig.object_generator_data_config %>','<%= kconfig.object_output_path %>']

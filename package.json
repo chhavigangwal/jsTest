@@ -4,6 +4,7 @@
   "devDependencies": {
     "chai": "~1.8.1",
     "grunt": "latest",
+    "grunt-cli": "latest",
     "grunt-mocha": "~0.4.6",
     "mocha": "~1.14.0"
   }
