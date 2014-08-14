@@ -1,14 +1,9 @@
-var M2_COMMAND = process.env.M2_HOME + "/bin/mvn";
-var JAVA_HOME = process.env.JAVA_HOME;
-var TOMCAT_PATH = "/home/impadmin/Softwares/apache-tomcat-7.0.26/apache-tomcat-7.0.26";
-var SERVER_SIDE_DATA_CONFIG = "/home/impadmin/KunderaWork/Final-js/testGrunt/node_properties_new.json";
-var OUTPUT_PATH = "/home/impadmin/testnode";
-var JS_DEPLOY_PATH = "/home/impadmin/testnode";
-
 module.exports = function(grunt) {
+	//configurations for kundera.js
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
-
+		kconfig : grunt.file.readJSON('config.json'),
+		env: process.env,
 		// Mocha
 		mocha : {
 			all : {
@@ -22,16 +17,16 @@ module.exports = function(grunt) {
 		// Install Rest for Kundera
 		installRest : {
 			options : {
-				cmd : M2_COMMAND,
+				cmd : "<%= env.M2_HOME %>/bin/mvn",
 				grunt : false,
 				args : [ '-f', 'bower_components/kunderaJSRest/pom.xml',
-						'clean', 'install','-Pconf','-Ddir='+TOMCAT_PATH+'/webapps/' , '-U' ]
+						'clean', 'install','-Pconf','-Ddir=<%= kconfig.tomcat_path %>/webapps/' , '-U' ]
 			}
 		},
 		//Server side object model generation
 		installServerSide : {
 			options : {
-				cmd : M2_COMMAND,
+				cmd : "<%= env.M2_HOME %>/bin/mvn",
 				grunt : false,
 				args : [ '-f',
 						'bower_components/ServersideObjectGeneration/pom.xml',
@@ -50,54 +45,39 @@ module.exports = function(grunt) {
 
 			},
 			create_jar_options : {
-				cmd : JAVA_HOME + "/bin/java",
+				cmd : "<%= env.JAVA_HOME %>/bin/java",
 				grunt : false,
 				args : [ '-jar','bower_components/ServersideObjectGeneration/ServerSideObjectGen-0.0.1-jar-with-dependencies.jar',
-				         SERVER_SIDE_DATA_CONFIG,OUTPUT_PATH]
+                           '<%= kconfig.object_generator_data_config %>','<%= kconfig.object_output_path %>']
 
 			},
 			deploy_pu_options : {
 				cmd : 'cp',
 				grunt : false,
-				args : [ '-r', OUTPUT_PATH+'/META-INF', TOMCAT_PATH+'/webapps/KunderaJSRest/WEB-INF/classes/']
+				args : [ '-r','<%= kconfig.object_output_path %>/META-INF', '<%= kconfig.tomcat_path %>/webapps/KunderaJSRest/WEB-INF/classes/']
 
 			},
 			deploy_cass_options : {
 				cmd : 'cp',
 				grunt : false,
-				args : [ OUTPUT_PATH+'/dynamic-cassandra-entity.jar', TOMCAT_PATH + '/webapps/KunderaJSRest/WEB-INF/lib']
+				args : [ '<%= kconfig.object_output_path %>/dynamic-cassandra-entity.jar', '<%= kconfig.tomcat_path %>/webapps/KunderaJSRest/WEB-INF/lib']
 
 			},
 			deploy_mongo_options : {
 				cmd : 'cp',
 				grunt : false,
-				args : [ OUTPUT_PATH+'/dynamic-mongodb-entity.jar', TOMCAT_PATH + '/webapps/KunderaJSRest/WEB-INF/lib']
+				args : [ '<%= kconfig.object_output_path %>/dynamic-mongodb-entity.jar', '<%= kconfig.tomcat_path %>/webapps/KunderaJSRest/WEB-INF/lib']
 
 			}
 		
 		},
-		uglify: {
-			all: {
-				files: {
-					"dist/kundera.min.js": [ "kundera.js" ]
-				},
-				options: {
-//					preserveComments: false,
-//					sourceMap: true,
-//					sourceMapName: "dist/jquery.min.map",
-//					report: "min",
-//					beautify: {
-//						"ascii_only": true
-//					},
-//					banner: "/*! jQuery v<%= pkg.version %> | " +
-//						"(c) 2005, <%= grunt.template.today('yyyy') %> jQuery Foundation, Inc. | " +
-//						"jquery.org/license */",
-					compress: {
-						"hoist_funs": false,
-						loops: false,
-						unused: false
-					}
-				}
+		// Deploy kundera.js
+		deployKunderaJS : {
+			options : {
+				cmd : "cp",
+				grunt : false,
+				args : [ 'kundera.min.js',
+						'<%= kconfig.js_deploy_path %>/kundera.js' ]
 			}
 		}
 	});
@@ -107,11 +87,9 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('test', [ 'mocha' ]);
 	
-	grunt.loadNpmTasks('grunt-contrib-uglify');
-	
-	grunt.registerTask('default', ['uglify', 'installRest','installServerSide']);
+	grunt.registerTask('default', ['installRest','installServerSide', 'deployKunderaJS']);
 
-	grunt.registerTask('installRest','Log some stuff.',	function() {
+	grunt.registerTask('installRest','Install js rest package',	function() {
 						var done = this.async();
 						grunt.log.write('Installing rest dependency...').ok();
 						grunt.util.spawn(grunt.config.get([ 'installRest' ]).options,
@@ -126,9 +104,9 @@ module.exports = function(grunt) {
 					});
 
 	
-	grunt.registerTask('installServerSide','Log some stuff.', function() {
+	grunt.registerTask('installServerSide','Run server side object assembly', function() {
 		var done = this.async();
-		grunt.log.write('Installing server side object model...').ok();
+		grunt.log.write('Running server side object assembly...').ok();
 	    grunt.util.spawn(grunt.config.get(['installServerSide']).options,
 				function(err, result, code){
 							if (code == 127) {
@@ -142,9 +120,9 @@ module.exports = function(grunt) {
 
 	});
 
-	grunt.registerTask('deployServerSideObject','Log some stuff.',function() {
+	grunt.registerTask('deployServerSideObject','Install object generator',function() {
 						var done = this.async();
-						grunt.log.write('deploying Server side...').ok();
+						grunt.log.write('Installing object generator...').ok();
 						grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).options,
 										function(err, result, code){
 											if (code == 127) {
@@ -161,9 +139,9 @@ module.exports = function(grunt) {
 
 					});
 	
-	grunt.registerTask('createServerSideObject','Log some stuff.',function() {
+	grunt.registerTask('createServerSideObject','Deploy object generator',function() {
 		var done = this.async();
-		grunt.log.write('Creating Server side objects...').ok();
+		grunt.log.write('Deploying object generator...').ok();
 		
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).create_jar_options,
 						function(err, result, code){
@@ -177,7 +155,7 @@ module.exports = function(grunt) {
 
 	});
 	
-	grunt.registerTask('DeployPU','Log some stuff.',function() {
+	grunt.registerTask('DeployPU','Deploy persistence unit',function() {
 		var done = this.async();
 		grunt.log.write('deploying persistence unt...').ok();
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_pu_options,
@@ -191,7 +169,7 @@ module.exports = function(grunt) {
 
 	});
 	
-	grunt.registerTask('DeployCassObjects','Log some stuff.',function() {
+	grunt.registerTask('DeployCassObjects','Deploy Cassandra objects',function() {
 		var done = this.async();
 		grunt.log.write('deploying cassandra objects...').ok();
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_cass_options,
@@ -205,10 +183,24 @@ module.exports = function(grunt) {
 
 	});
 	
-	grunt.registerTask('DeployMongoObjects','Log some stuff.',function() {
+	grunt.registerTask('DeployMongoObjects','Deploy Mongo objects',function() {
 		var done = this.async();
 		grunt.log.write('deploying mongo objects...').ok();
 		grunt.util.spawn(grunt.config.get([ 'deployServerSideObject' ]).deploy_mongo_options,
+						function(err, result, code){
+							if (code == 127) {
+								return grunt.warn('The attempt to deploy mongo entities for kundera failed.');
+							}
+							grunt.log.write('Response...' + result).ok();
+							done();
+						});
+
+	});
+	
+	grunt.registerTask('deployKunderaJS','Deploy kundera.js',function() {
+		var done = this.async();
+		grunt.log.write('Deploying kundera.js...').ok();
+		grunt.util.spawn(grunt.config.get([ 'deployKunderaJS' ]).options,
 						function(err, result, code){
 							if (code == 127) {
 								return grunt.warn('The attempt to deploy mongo entities for kundera failed.');

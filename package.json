@@ -4,7 +4,6 @@
   "devDependencies": {
     "chai": "~1.8.1",
     "grunt": "latest",
-    "grunt-contrib-uglify": "^0.5.1",
     "grunt-mocha": "~0.4.6",
     "mocha": "~1.14.0"
   }

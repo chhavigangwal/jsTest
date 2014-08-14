@@ -1,7 +1,7 @@
 {
-  "tomcat_path" : "/home/impadmin/Softwares/apache-tomcat-7.0.26/apache-tomcat-7.0.26",
-  "object_generator_data_config" : "/home/impadmin/KunderaWork/Final-js/testGrunt/node_properties_new.json",
-  "object_output_path" : "/home/impadmin/testnode",
-  "js_deploy_path" : "/home/impadmin/testnode"
+  "tomcat_path" : "/opt/tomcat",
+  "object_generator_data_config" : "/tmp/node_properties_new.json",
+  "object_output_path" : "/tmp/data",
+  "js_deploy_path" : "/tmp/test"
 
 }
