@@ -5,6 +5,7 @@
     "chai": "~1.8.1",
     "grunt": "latest",
     "grunt-cli": "latest",
+    "grunt-contrib-copy": "^0.5.0",
     "grunt-mocha": "~0.4.6",
     "mocha": "~1.14.0"
   }
