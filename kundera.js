@@ -2215,6 +2215,7 @@ function init(){
   !!$stats && onModuleStart('com.google.gwt.logging.client.LogConfiguration');
   !!$stats && onModuleStart('kunderajs.client.KunderaJS');
   $onModuleLoad_1($clinit_KunderaJS());
+  $wnd.kunderajsReadyStateChange();
 }
 
 function caught(e){
